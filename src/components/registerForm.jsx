@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import Form from './form';
 import Joi from 'joi-browser';
+import * as userService from '../services/userService';
+import { toast } from 'react-toastify';
+import { withRouter } from './withRouter';
 
 
 class RegisterForm extends Form {
@@ -16,11 +19,21 @@ class RegisterForm extends Form {
         name: Joi.string().required().label("Name")
     };
 
-    doSubmit = () => {
-        console.log("submitRegister");
+    doSubmit = async () => {
+        try{
+            await userService.register(this.state.data);
+            toast.success("Registered successfully");
+            this.props.navigate("/login");
+        }
+        catch(ex){
+            if(ex.response && ex.response.status === 400){
+                const errors = {...this.state.errors};
+                errors.username = ex.response.data;
+                this.setState({errors});
+            }
+        }
+        
     };
-
-
 
     render() { 
         
@@ -42,4 +55,4 @@ class RegisterForm extends Form {
     }
 }
  
-export default RegisterForm;
+export default withRouter(RegisterForm);

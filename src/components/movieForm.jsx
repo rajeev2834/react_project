@@ -1,8 +1,8 @@
 import React, { Component, useEffect } from 'react';
 import Form from './form';
 import Joi from 'joi-browser';
-import {getGenres} from '../services/fakeGenreService';
-import { getMovie, saveMovie } from './../services/fakeMovieService';
+import {getGenres} from '../services/genreService';
+import { getMovie, saveMovie } from '../services/movieService';
 import { withRouter } from './withRouter';
 
 
@@ -27,23 +27,28 @@ class MovieForm extends Form {
         dailyRentalRate: Joi.number().required().label("Daily Rental Rate").min(0).max(10)
     };
 
-    componentDidMount() {
-        this.setState({ genres: getGenres() });
-
-        const movieId = this.props.match.params.id;
-        const {navigate} = this.props;
-
-        if (movieId === "new") return;
-
-        const movie = getMovie(movieId);
-
-
-        if (!movie) return setTimeout(() => {navigate("/not-found",{replace: true})}, 0);
-
-        this.setState({ data: this.mapToViewModel(movie) });
-
+    async populateGenres() {
+        const {data : genres} = await getGenres();
+        this.setState({genres});
     }
 
+    async populateMovies(){
+        try{
+            const movieId = this.props.match.params.id;
+            if (movieId === "new") return;
+            const {data} = await getMovie(movieId);
+            this.setState({data: this.mapToViewModel(data)});
+        } catch(ex){
+            const {navigate} = this.props;
+            if(ex.response && ex.response.status === 404)
+             setTimeout(() => {navigate("/not-found",{replace: true})}, 0);
+        }
+    }
+
+    async componentDidMount() {
+        await this.populateGenres();
+        await this.populateMovies();
+    }
 
     mapToViewModel(movie) {
         return {
@@ -55,12 +60,10 @@ class MovieForm extends Form {
         };
     }
 
-    doSubmit = () => {
-        saveMovie(this.state.data);
+    doSubmit = async () => {
+        await saveMovie(this.state.data);
         this.props.navigate("/movies");
     };
-
-
 
     render() { 
         

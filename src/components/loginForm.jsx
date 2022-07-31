@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import Joi from 'joi-browser';
 import Form from './form';
+import { toast } from 'react-toastify';
+import {login} from '../services/authService';
+import { withRouter } from './withRouter';
 import "../App.css"
 
 class LoginForm extends Form {
@@ -15,8 +18,19 @@ class LoginForm extends Form {
         password: Joi.string().required().label("Password")
     };
 
-    doSubmit = () => {
-        console.log("submit");
+    doSubmit = async() => {
+      try{
+        const {data} = this.state;
+        const {data : token} = await login(data.username, data.password);
+        localStorage.setItem("token", token);
+        toast.success("Logged in successfully");
+        this.props.navigate("/");
+      }catch(ex){
+        if(ex.response && ex.response.status === 400){
+          toast.error(ex.response.data);
+        }
+      }
+      
     };
 
     render() { 
@@ -40,4 +54,4 @@ class LoginForm extends Form {
     }
 }
  
-export default LoginForm;
+export default withRouter(LoginForm);
