@@ -8,7 +8,6 @@ import {getGenres } from '../services/genreService';
 import MoviesTable from './moviesTable';
 import SearchBox from './common/searchBox';
 import _ from 'lodash';
-
 import {Link} from 'react-router-dom';
 
 class Movies extends Component{
@@ -76,6 +75,8 @@ class Movies extends Component{
                movies : allMovies, 
                } = this.state;
 
+        const {user} = this.props;
+       
         let filtered = allMovies;
         if(searchQuery)
             filtered = allMovies.filter(m => m.title.toLowerCase().startsWith(searchQuery.toLowerCase()));
@@ -98,9 +99,7 @@ class Movies extends Component{
                 </div>
                
                 <div className = "col">
-                    <button className="btn btn-primary sm-2 mb-1" >
-                        <Link to="/movies/new" style={{color:"white",textDecoration:"none"}}>
-                        New Movie</Link></button>
+                    {user && <Link to = "/movies/new" className = "btn btn-primary mb-2">New Movie</Link>}
                     <p> Showing {filtered.length} movies in the database</p>
                     <SearchBox value={this.state.searchQuery} onChange={this.handleSearch} />
                     <MoviesTable movies = {movies} 

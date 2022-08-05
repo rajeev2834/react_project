@@ -5,9 +5,12 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'font-awesome/css/font-awesome.css';
 
 import App from './App';
+import Counter from './hooks/counter';
+import User from './hooks/User';
+import MoviePage from './context/moviePage';
 
 ReactDOM.render(<BrowserRouter>
-                    <App />
+                    <MoviePage />
                 </BrowserRouter>, 
                 document.getElementById('root')
             );

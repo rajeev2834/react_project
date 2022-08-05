@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Form from './form';
 import Joi from 'joi-browser';
 import * as userService from '../services/userService';
+import auth from '../services/authService';
 import { toast } from 'react-toastify';
 import { withRouter } from './withRouter';
 
@@ -21,9 +22,10 @@ class RegisterForm extends Form {
 
     doSubmit = async () => {
         try{
-            await userService.register(this.state.data);
+            const response = await userService.register(this.state.data);
+            auth.loginWithJwt(response.headers['x-auth-token']);
             toast.success("Registered successfully");
-            this.props.navigate("/login");
+            window.location = "/";
         }
         catch(ex){
             if(ex.response && ex.response.status === 400){

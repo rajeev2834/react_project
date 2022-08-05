@@ -1,7 +1,8 @@
 import http from "./httpService" ;
 import config from "../components/config.json";
 
+const apiEndpoint = "/genres";
+
 export function getGenres() {
-    console.log(config.apiEndPoint + "genres");
-   return http.get(config.apiEndPoint + "genres");
+   return http.get(apiEndpoint);
 }

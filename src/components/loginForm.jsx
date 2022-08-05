@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
+import {Navigate} from 'react-router-dom';
 import Joi from 'joi-browser';
 import Form from './form';
 import { toast } from 'react-toastify';
-import {login} from '../services/authService';
+import auth from '../services/authService';
 import { withRouter } from './withRouter';
 import "../App.css"
 
@@ -21,10 +22,9 @@ class LoginForm extends Form {
     doSubmit = async() => {
       try{
         const {data} = this.state;
-        const {data : token} = await login(data.username, data.password);
-        localStorage.setItem("token", token);
-        toast.success("Logged in successfully");
-        this.props.navigate("/");
+        await auth.login(data.username, data.password);
+        const {state} = this.props.location;
+        window.location = state ? state.from : "/";
       }catch(ex){
         if(ex.response && ex.response.status === 400){
           toast.error(ex.response.data);
@@ -33,7 +33,12 @@ class LoginForm extends Form {
       
     };
 
-    render() { 
+    render() {
+
+        if(auth.getCurrentUser()){
+            return <Navigate to="/"/>;
+        }
+        
         return (
             <div className="Auth-form-container">
             <form className="Auth-form" onSubmit={this.handleSubmit}>
